@@ -152,6 +152,7 @@ fileList = os.listdir(filePath) # getting list of files present in directory
 
 startTime = mb.get_time() # storing cpu start time
 
+current_Time = mb.get_current_time() # getting current datetime stamp, will be updated for each file
 
 print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS WINDOW! *".upper()+coLr.ENDC)
 # /home/mrd_source/Test/Part_1_MLCC/Part_1_MLCC_1
@@ -165,8 +166,6 @@ fileCounter = 0
     # fileList = os.listdir(filePath)
 
 for file in fileList:
-
-    current_Time = mb.get_current_time() # getting current datetime stamp, will be updated for each file
 
     root = ET.parse(filePath+'/'+file)
 
