@@ -153,21 +153,21 @@ current_Time = mb.get_current_time() # getting current datetime stamp
 print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS WINDOW! *".upper()+coLr.ENDC)
 # /home/mrd_source/Test/Part_1_MLCC/Part_1_MLCC_1
 fileCounter = 0
-for folder in ['Part_1_MLCC_1', 'Part_1_MLCC_2', 'Part_1_MLCC_3', 'Part_1_MLCC_4']:
+# for folder in ['Part_1_MLCC_1', 'Part_1_MLCC_2', 'Part_1_MLCC_3', 'Part_1_MLCC_4']:
 
-    filePath = f"/home/mrd_source/Test/Part_1_MLCC/{folder}"
+    # filePath = f"/home/mrd_source/Test/Part_1_MLCC/{folder}"
+
+    # print(f"PROCESS STARTED FOR {folder}")
+
+    # fileList = os.listdir(filePath)
+
+for file in fileList:
     
-    print(f"PROCESS STARTED FOR {folder}")
+    root = ET.parse(filePath+'/'+file)
 
-    fileList = os.listdir(filePath)
+    counter = main(root, file, current_Time, dbCredentials.TABL_NME, ENGN)
 
-    for file in fileList:
-
-        root = ET.parse(filePath+'/'+file)
-
-        # counter = main(root, file, current_Time, dbCredentials.TABL_NME, ENGN)
-
-        fileCounter+=counter
+    fileCounter+=counter
 
 endTime = mb.get_time()-startTime
 

@@ -1,0 +1,6 @@
+23-03-21 13:01:22: 1702843820210203125343108.XML cannot be compiled due to: min() arg is an empty sequence
+23-03-21 13:01:22: 1706993620210202133001170.XML cannot be compiled due to: min() arg is an empty sequence
+23-03-21 13:01:22: 1705292920210202112241141.XML cannot be compiled due to: min() arg is an empty sequence
+23-03-21 13:01:22: 1706022720210202163048208.XML cannot be compiled due to: min() arg is an empty sequence
+23-03-21 13:01:22: 1702958920210203161423176.XML cannot be compiled due to: min() arg is an empty sequence
+23-03-21 13:01:22: 1706743020210203132433286.XML cannot be compiled due to: min() arg is an empty sequence
