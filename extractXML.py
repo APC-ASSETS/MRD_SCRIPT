@@ -112,14 +112,17 @@ def main(root, *args):
         [orderBy.append(i) for i in finalPrep.columns if i not in orderBy] # ordering dataframe
 
         finalPrep = finalPrep[orderBy] # putting columns in order
-        finalPrep['G2'] = finalPrep['G2'].apply(mb.cnvrtToDTS)# converting each value to datetime
-        finalPrep['Date'] = finalPrep['Date'].apply(mb.cnvrtToDTS)# converting each value to datetime
+        finalPrep['G2'] = finalPrep['G2'].astype('datetime64[s]')#apply(mb.cnvrtToDTS)# converting each value to datetime
+        finalPrep['Date'] = finalPrep['Date'].astype('datetime64[s]')#.apply(mb.cnvrtToDTS)# converting each value to datetime
         finalPrep['created_timestamp'] = timeStmp# making current time stamp column
 
 
         if len(finalPrep) > 0: # checking the length of dataframe
             # fileName = fileName.replace(".XML",".csv")
             chnk = len(finalPrep)//3
+
+            finalPrep.fillna(" ", inplace=True)
+
             finalPrep.to_sql(f"{tableName}", ENGN, index=False, if_exists='append', method='multi', chunksize=chnk)
             # to_csv(f"./GENERATED_CSV_FILES/{fileName}", index=False, chunksize=90000)
             mb.update_log("D4_RECORD", timeStmp, f"{len(xlmFrame)} rows got inserted from {fileName}")# updating record inserted log
@@ -148,7 +151,7 @@ filePath = input(coLr.OKGREEN+coLr.BOLD+"ENTER PATH TO XML FILES: "+coLr.ENDC)
 fileList = os.listdir(filePath) # getting list of files present in directory
 
 startTime = mb.get_time() # storing cpu start time
-current_Time = mb.get_current_time() # getting current datetime stamp
+
 
 print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS WINDOW! *".upper()+coLr.ENDC)
 # /home/mrd_source/Test/Part_1_MLCC/Part_1_MLCC_1
@@ -162,7 +165,9 @@ fileCounter = 0
     # fileList = os.listdir(filePath)
 
 for file in fileList:
-    
+
+    current_Time = mb.get_current_time() # getting current datetime stamp, will be updated for each file
+
     root = ET.parse(filePath+'/'+file)
 
     counter = main(root, file, current_Time, dbCredentials.TABL_NME, ENGN)
