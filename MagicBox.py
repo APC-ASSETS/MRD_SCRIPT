@@ -213,7 +213,7 @@ def update_log(fileName, *args:"First argument should be datetime, second should
         f.write(f"{args[0]}: {args[1]}\n")
 
 
-def alter_table(ENGN, tableName, colName, dataType, val="")->"RETURNS NOTHING":
+def alter_table(ENGN, tableName, colName, dataType, val=" ")->"RETURNS NOTHING":
     """
         Function will create a new column within a table
     """
@@ -226,3 +226,17 @@ def alter_table(ENGN, tableName, colName, dataType, val="")->"RETURNS NOTHING":
     except Exception as e:
 
         update_log("ALTER_ERROR", f"ERROR WHILE ALTERING TABLE, {e}") #updating error log
+
+def add_parametercode(ENGN, tableName, colName)->"RETURNS NOTHING":
+    """
+        Function add parametercode
+    """
+
+    try:
+        # creating column inside table
+        pd.read_sql_query(f'ALTER TABLE {tableName} ADD `{colName.strip()}` VARCHAR(45) NULL DEFAULT " ";', ENGN)
+
+    except Exception as e:
+
+        pass
+        # update_log("ALTER_ERROR", f"ERROR WHILE ALTERING TABLE, {e}") #updating error log

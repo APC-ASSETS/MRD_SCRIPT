@@ -6,9 +6,7 @@ import staticVar
 import MagicBox as mb
 from MagicBox import coLr
 import xml.etree.ElementTree as ET
-# from DBConnection import dbCredentials
 from sqlalchemy import create_engine # engine for connection with postgres/mysql
-# from DBConnection.createEngine import engn as ENGN
 from sqlalchemy.types import Float, String, Time
 
 #************ CREATING CONNECTION **************#
@@ -41,9 +39,13 @@ def main(root, *args):
     intervalList = []
     paramDict = mb.paramcode_dict()
     dateDict={'Date':[]} # to store date
-    paramTags = [key for key,val in paramDict.items()] # unique tags of PARAMCODE
+    # paramTags = [key for key,val in paramDict.items()] # unique tags of PARAMCODE
 
     dateList = mb.tag_values(root, "./UTILITYTYPE/D4/DAYPROFILE", "DATE")# list of dates present inside xml file
+    getColNames = pd.read_sql_query(f"SELECT * FROM {tableName} LIMIT 1;", ENGN) # reading sql query to fetch column names
+    getColNames.drop(orderBy+['created_timestamp'], axis=1, inplace=True) # deleting all irrelevant columns
+    paramTags = getColNames.columns.tolist() # list of parametercode present in table
+
     try:
 
         for date in dateList: # iretarting over date list
@@ -57,8 +59,8 @@ def main(root, *args):
 
                     if item.attrib['PARAMCODE'] not in paramTags: # updating dictionary if PARAMCODE not present in ubique list
 
+                        mb.add_parametercode(ENGN,tableName, item.attrib['PARAMCODE'])# creating new column in table
                         paramDict.update({item.attrib['PARAMCODE']:item.attrib['VALUE']}) # updating dictionary
-                        print(item.attrib['PARAMCODE'])
 
                     else:
 
