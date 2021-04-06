@@ -6,17 +6,29 @@ import staticVar
 import MagicBox as mb
 from MagicBox import coLr
 import xml.etree.ElementTree as ET
-from DBConnection import dbCredentials
-from DBConnection.createEngine import engn as ENGN
+# from DBConnection import dbCredentials
+from sqlalchemy import create_engine # engine for connection with postgres/mysql
+# from DBConnection.createEngine import engn as ENGN
 from sqlalchemy.types import Float, String, Time
 
+#************ CREATING CONNECTION **************#
+USR_NME = 'root' # dm username
+PSWRD = 'Analytics@123' # db password
+DB_NME ='MRD_TEST' # name of database
+TABL_NME = 'Meter_Dayprofile_Data_D4_New' # name of table
+ENGN = create_engine(f"mysql://{USR_NME}:{PSWRD}@localhost/{DB_NME}") # creating engine
+#**********************************************#
+
+#*************** LOCATION OF PATH WHERE XML FILES ARE STORED *****************#
+XML_PTH = "/home/santosh/mrd_source/Test/TEST_FILES/"
+#*****************************************************************************#
 def main(root, *args):
 
     #*********** ARGUMENTS EXTRACTION **************#
     fileName = args[0] # xml filename
     timeStmp = args[1] # CPU time stamp
     tableName = args[2] # database table name
-    ENGN = args[3] # database table name
+    ENGN = args[3] # database engine
     #**********************************************#
 
     #preparing file, making some empty dictionaries and defininng variables
@@ -57,6 +69,10 @@ def main(root, *args):
             # swap value to generate number of times date occured when the value is found in PARAMCODE
             maxR = len(paramDict[item.attrib['PARAMCODE']]) # getting the maximmum value in list
 
+            if len(interValMin) < 1:
+
+                interValMin= [1]
+
             maxR,minR = maxR-minR, maxR # setting up max and min range
 
             [intervalList.append(_) for _ in range(min(interValMin), 49)] # appending value interval list
@@ -64,7 +80,6 @@ def main(root, *args):
             [dateDict['Date'].append(date) for i in range(0, maxR)] # appending number of times date occur till max interval
 
             del interValMin
-    # 'P1-2-7-4-0'
 
         childDict = {} # creating an enpty dictionary to contain the values formed above
 
@@ -125,28 +140,28 @@ def main(root, *args):
 
             finalPrep.to_sql(f"{tableName}", ENGN, index=False, if_exists='append', method='multi', chunksize=chnk)
             # to_csv(f"./GENERATED_CSV_FILES/{fileName}", index=False, chunksize=90000)
-            mb.update_log("D4_RECORD", timeStmp, f"{len(xlmFrame)} rows got inserted from {fileName}")# updating record inserted log
+            mb.update_log("D4_RECORD_NEW", timeStmp, f"{len(xlmFrame)} rows got inserted from {fileName}")# updating record inserted log
 
             counter+=1
 
         else:
 
             # will update log if d4  tag doesnot exists in xml file
-            mb.update_log("D4_NOTFOUND", timeStmp, f"{fileName} Doesn't contains D4 Tags")
+            mb.update_log("D4_NOTFOUND_NEW", timeStmp, f"{fileName} Doesn't contains D4 Tags")
 
         return counter
 
     except Exception as e:
 
         # will update log if XML file is not compiled
-        mb.update_log("D4_FILE_REVIEW", timeStmp, f"{fileName} cannot be compiled due to: {e}")
+        mb.update_log("D4_FILE_REVIEW_NEW", timeStmp, f"{fileName} cannot be compiled due to: {e}")
 
         return counter
 
 #***********************************************************************************************#
 # if __name__ == "__main__":
 #***********************************************************************************************#
-filePath = input(coLr.OKGREEN+coLr.BOLD+"ENTER PATH TO XML FILES: "+coLr.ENDC)
+filePath = XML_PTH #input(coLr.OKGREEN+coLr.BOLD+"ENTER PATH TO XML FILES: "+coLr.ENDC)
 
 fileList = os.listdir(filePath) # getting list of files present in directory
 
@@ -155,24 +170,17 @@ startTime = mb.get_time() # storing cpu start time
 current_Time = mb.get_current_time() # getting current datetime stamp, will be updated for each file
 
 print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS WINDOW! *".upper()+coLr.ENDC)
-# /home/mrd_source/Test/Part_1_MLCC/Part_1_MLCC_1
+
 fileCounter = 0
-# for folder in ['Part_1_MLCC_1', 'Part_1_MLCC_2', 'Part_1_MLCC_3', 'Part_1_MLCC_4']:
-
-    # filePath = f"/home/mrd_source/Test/Part_1_MLCC/{folder}"
-
-    # print(f"PROCESS STARTED FOR {folder}")
-
-    # fileList = os.listdir(filePath)
 
 for file in fileList:
 
     root = ET.parse(filePath+'/'+file)
 
-    counter = main(root, file, current_Time, dbCredentials.TABL_NME, ENGN)
+    counter = main(root, file, current_Time, TABL_NME, ENGN)
 
     fileCounter+=counter
 
-endTime = mb.get_time()-startTime
 
+endTime = mb.get_time()-startTime # calculating time taken to complete the whole process
 print(coLr.OKBLUE+coLr.BOLD+f"Data Extraction of {fileCounter} file/files and UPLOAD(TO DATABASE) took {round(endTime,2)} Seconds".upper()+coLr.ENDC)

@@ -5,7 +5,7 @@ def connect(USR_NME, PSWRD, DB_NME, dbused='mysql', PORT_NMBR=None)->"RETURNS TH
 
     """ ReturnS engine object connected with the credentials provided """
 
-    from sqlalchemy import create_engine #creating engine for connection with postgres
+    from sqlalchemy import create_engine # engine for connection with postgres/mysql etc
 
     connectTo = {
         "postgres":f"postgresql://{USR_NME}:{PSWRD}@localhost/{DB_NME}",
