@@ -2,9 +2,8 @@
 import os
 import datetime
 import pandas as pd
-import staticVar
-import MagicBox as mb
-from MagicBox import coLr
+import d4_MagicBox as mb
+from d4_MagicBox import coLr
 import xml.etree.ElementTree as ET
 from sqlalchemy import create_engine # engine for connection with postgres/mysql
 from sqlalchemy.types import Float, String, Time
@@ -15,7 +14,7 @@ PSWRD = 'Analytics@123' # db password
 DB_NME ='MRD_TEST' # name of database
 TABL_NME = 'Meter_Dayprofile_Data_D4_New' # name of table
 ENGN = create_engine(f"mysql://{USR_NME}:{PSWRD}@localhost/{DB_NME}") # creating engine
-#**********************************************#
+#*****************************************************************************#
 
 #*************** LOCATION OF PATH WHERE XML FILES ARE STORED *****************#
 XML_PTH = "/home/santosh/mrd_source/Test/TEST_FILES/"
@@ -42,9 +41,8 @@ def main(root, *args):
     # paramTags = [key for key,val in paramDict.items()] # unique tags of PARAMCODE
 
     dateList = mb.tag_values(root, "./UTILITYTYPE/D4/DAYPROFILE", "DATE")# list of dates present inside xml file
-    getColNames = pd.read_sql_query(f"SELECT * FROM {tableName} LIMIT 1;", ENGN) # reading sql query to fetch column names
-    getColNames.drop(orderBy+['created_timestamp'], axis=1, inplace=True) # deleting all irrelevant columns
-    paramTags = getColNames.columns.tolist() # list of parametercode present in table
+
+    paramTags = mb.get_SQLcolumns(ENGN, tableName, orderBy) # list of parametercode present in table
 
     try:
 
@@ -175,7 +173,7 @@ print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS 
 
 fileCounter = 0
 
-for file in fileList:
+for file in fileList[:50]:
 
     root = ET.parse(filePath+'/'+file)
 

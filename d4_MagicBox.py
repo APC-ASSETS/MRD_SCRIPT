@@ -3,7 +3,6 @@ File contains the functions or classes to be used in scripts
 """
 
 import os
-import staticVar
 import pandas as pd
 import time, datetime
 
@@ -212,30 +211,44 @@ def update_log(fileName, *args:"First argument should be datetime, second should
 
         f.write(f"{args[0]}: {args[1]}\n")
 
+def get_SQLcolumns(ENGN, tableName, orderBy=[])->"WILL RETURN THE PAPRMETERCODE FROM SQL TABLE":
 
-def alter_table(ENGN, tableName, colName, dataType, val=" ")->"RETURNS NOTHING":
     """
-        Function will create a new column within a table
+    THE FUNCTION WILL RETURN THE PARAMETERCODE COLUMN NAME PRESENT IN SQL TABLE
     """
-    dataType = staticVar.dataType_Dict[dataType.lower()] # fetching correct datatype
-
     try:
-        # creating column inside table
-        pd.read_sql_query(f'ALTER TABLE {tableName} ADD `{colName.strip()}` {dataType}({val}) NULL;', engn)
+        getColNames = pd.read_sql_query(f"SELECT * FROM {tableName} LIMIT 1;", ENGN) # reading sql query to fetch column names
+        getColNames.drop(orderBy+['created_timestamp'], axis=1, inplace=True) # deleting all irrelevant columns
+        paramTags = getColNames.columns.tolist() # list of parametercode present in table
 
-    except Exception as e:
+    except:
 
-        update_log("ALTER_ERROR", f"ERROR WHILE ALTERING TABLE, {e}") #updating error log
+        paramTags=[]
+
+    return paramTags
+
 
 def add_parametercode(ENGN, tableName, colName)->"RETURNS NOTHING":
     """
         Function add parametercode
     """
 
-    try:
-        # creating column inside table
-        pd.read_sql_query(f'ALTER TABLE {tableName} ADD `{colName.strip()}` VARCHAR(45) NULL DEFAULT " ";', ENGN)
+    orderBy =[
+        'FileName','G1', 'G2',
+        'IntervalPeriod', 'Interval_d4', 'Date',
+    ] # fields to exclude from table to get only the parameter codes
 
+    chkCols = get_SQLcolumns(ENGN, tableName, orderBy)
+
+    try:
+
+        if colName not in chkCols:
+            # creating column inside table
+            pd.read_sql_query(f'ALTER TABLE {tableName} ADD `{colName.strip()}` VARCHAR(45) NULL DEFAULT " ";', ENGN)
+
+        else:
+
+            pass
     except Exception as e:
 
         pass
