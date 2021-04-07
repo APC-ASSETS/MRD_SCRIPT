@@ -173,7 +173,7 @@ print(coLr.WARNING+coLr.BOLD+f"* DATA EXTRACTION IN PROGRESS, DO NOT CLOSE THIS 
 
 fileCounter = 0
 
-for file in fileList[:50]:
+for file in fileList:
 
     root = ET.parse(filePath+'/'+file)
 
